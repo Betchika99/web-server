@@ -2,7 +2,7 @@ class Query
     attr_accessor :method, :url, :http_version, :file, :file_type
 
     def init(request)
-        # puts "Request: #{request}"
+        puts "Request: #{request} IN PROCESS #{Process.pid}"
 
         request_args = request.split(' ')
         @method = request_args[0]

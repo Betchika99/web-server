@@ -10,38 +10,67 @@ busy_workers_count = 0
 
 main = Process.pid
 
+workers = []
+
 loop do
     break if busy_workers_count == WORKERS_COUNT
     busy_workers_count += 1
     if Process.pid == main
-        Process.fork
+        # Process.fork
+        pid = fork do
+            workers.push pid
+            if Process.pid == main
+                print "Me (main)   : " + Process.pid.to_s
+                print "\n"
+              else
+                print "Me (clone)  : " + Process.pid.to_s
+                print "\n"
+            end
+
+            while (session = server.accept)
+                request = session.gets
+            
+                if !check_request(request)
+                    session.close
+                    next
+                end
+            
+                q = Query.new
+                q.init(request)
+                if !check_query(q)
+                    session.print create_response("NOT_ALLOWED", q)
+                    session.close
+                    next
+                end  
+            
+                session.print create_response("OK", q)
+                session.close
+            end
+        end
     end
 end
 
-if Process.pid == main
-  print "Me (main)   : " + Process.pid.to_s
-  print "\n"
-else
-  print "Me (clone)  : " + Process.pid.to_s
-  print "\n"
+for pid in workers do
+    # Process.detach(pid)
+    Process.waitpid(pid)
 end
 
-while (session = server.accept)
-    request = session.gets
+# while (session = server.accept)
+#     request = session.gets
 
-    if !check_request(request)
-        session.close
-        next
-    end
+#     if !check_request(request)
+#         session.close
+#         next
+#     end
 
-    q = Query.new
-    q.init(request)
-    if !check_query(q)
-        session.print create_response("NOT_ALLOWED", q)
-        session.close
-        next
-    end  
+#     q = Query.new
+#     q.init(request)
+#     if !check_query(q)
+#         session.print create_response("NOT_ALLOWED", q)
+#         session.close
+#         next
+#     end  
 
-    session.print create_response("OK", q)
-    session.close
-end
+#     session.print create_response("OK", q)
+#     session.close
+# end
