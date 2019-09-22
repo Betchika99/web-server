@@ -2,7 +2,7 @@ class Query
     attr_accessor :method, :url, :http_version, :file, :file_type
 
     def init(request)
-        puts "Request: #{request}"
+        # puts "Request: #{request}"
 
         request_args = request.split(' ')
         @method = request_args[0]
@@ -25,7 +25,6 @@ class Query
         allow_types = ['html', 'css', 'js', 'jpg', 'jpeg', 'png', 'gif', 'swf', 'txt']
     
         if !allow_types.include?(@file_type)
-            puts "FILE TYPE NOT FOUND"
             return
         end
     

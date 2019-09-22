@@ -16,14 +16,18 @@ def create_response(status, query)
         "Connection: keep-alive\r\n"
     ]
 
+    if status == "NOT_ALLOWED"
+        result = http_version + " " + status_code + "\r\n" + headers.reduce(:+) + "\r\n"
+        return result
+    end
+
     body = ""
 
     if type = query.get_file_type
         content, length = open_file("./http-test-suite" + query.url)
         headers.push(add_content_type(type))
         headers.push(add_content_length(length))
-        # if query.method == 'GET'
-        if query.method == 'GET' || query.method == 'POST'
+        if query.method == 'GET'
             body = content
         end
     end
