@@ -1,3 +1,5 @@
+require 'uri'
+
 class Query
     attr_accessor :method, :url, :http_version, :file, :file_type
 
@@ -6,10 +8,16 @@ class Query
 
         request_args = request.split(' ')
         @method = request_args[0]
-        @url = request_args[1]
+        @url = URI.unescape(request_args[1].split("?").first)
         @http_version = request_args[2]
 
         @file = @url.split("/").last
+
+        if @file.split(".").length == 1
+            @file = "index.html"
+            @url += @file
+        end
+
         @file_type = @file.split(".").last
     end
 

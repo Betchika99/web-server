@@ -15,3 +15,14 @@ def check_query(query)
 
     return true
 end
+
+def check_url(query)
+    begin
+    file = open ("./http-test-suite" + query.url)
+
+    rescue Exception => e
+        return false
+    else
+        return true
+    end
+end

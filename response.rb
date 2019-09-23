@@ -3,6 +3,8 @@ require_relative 'file.rb'
 
 STATUSES = {
     'NOT_ALLOWED' => 405,
+    'NOT_FOUND' => 404,
+    'FORBIDDEN' => 403,
     'OK' => 200
 }
 
@@ -11,13 +13,12 @@ def create_response(status, query)
     status_code = STATUSES[status].to_s + " " + status
 
     headers = [
-        "Cache-Control: no-cache, no-store, must-revalidate\r\n",
-        "Server: Highload-Server",
+        "Server: Highload-Server\r\n",
         "Date: #{Time.now}\r\n",
         "Connection: keep-alive\r\n"
     ]
 
-    if status == "NOT_ALLOWED"
+    if status == "NOT_ALLOWED" || status == "NOT_FOUND" || status == "FORBIDDEN"
         result = http_version + " " + status_code + "\r\n" + headers.reduce(:+) + "\r\n"
         return result
     end

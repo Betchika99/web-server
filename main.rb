@@ -29,20 +29,31 @@ loop do
 
             while (session = server.accept)
                 request = session.gets
-            
                 if !check_request(request)
                     session.close
                     next
                 end
-            
+                
                 q = Query.new
                 q.init(request)
                 if !check_query(q)
                     session.print create_response("NOT_ALLOWED", q)
                     session.close
                     next
-                end  
-            
+                end
+
+                if !check_url(q) && q.file == "index.html"
+                    session.print create_response("FORBIDDEN", q)
+                    session.close
+                    next
+                end
+
+                if !check_url(q)
+                    session.print create_response("NOT_FOUND", q)
+                    session.close
+                    next
+                end
+                        
                 session.print create_response("OK", q)
                 session.close
             end
@@ -57,20 +68,34 @@ end
 
 # while (session = server.accept)
 #     request = session.gets
-
+#     puts "REQUEST: #{request}"
+#     puts "CHECK_REQUEST: #{check_request(request)}"
 #     if !check_request(request)
 #         session.close
 #         next
 #     end
-
+    
 #     q = Query.new
 #     q.init(request)
 #     if !check_query(q)
 #         session.print create_response("NOT_ALLOWED", q)
 #         session.close
 #         next
-#     end  
+#     end
 
+#     puts "FIIIIIIIILE: #{q.file}"
+#     if !check_url(q) && q.file == "index.html"
+#         session.print create_response("FORBIDDEN", q)
+#         session.close
+#         next
+#     end
+
+#     if !check_url(q)
+#         session.print create_response("NOT_FOUND", q)
+#         session.close
+#         next
+#     end
+            
 #     session.print create_response("OK", q)
 #     session.close
 # end
