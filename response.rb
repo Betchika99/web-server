@@ -12,6 +12,7 @@ def create_response(status, query)
 
     headers = [
         "Cache-Control: no-cache, no-store, must-revalidate\r\n",
+        "Server: Highload-Server",
         "Date: #{Time.now}\r\n",
         "Connection: keep-alive\r\n"
     ]
