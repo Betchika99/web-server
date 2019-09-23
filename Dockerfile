@@ -14,4 +14,4 @@ WORKDIR $APP
 
 EXPOSE 80
 
-CMD ruby main.rb
+CMD ruby src/main.rb
