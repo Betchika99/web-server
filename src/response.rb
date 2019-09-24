@@ -26,7 +26,8 @@ def create_response(status, query)
     body = ""
 
     if type = query.get_file_type
-        content, length = open_file("./http-test-suite" + query.url)
+        # content, length = open_file("./http-test-suite" + query.url)
+        content, length = open_file(query.url)
         headers.push(add_content_type(type))
         headers.push(add_content_length(length))
         if query.method == 'GET'

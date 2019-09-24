@@ -3,7 +3,7 @@ require 'uri'
 class Query
     attr_accessor :method, :url, :http_version, :file, :file_type
 
-    def init(request)
+    def init(request, folder)
         puts "Request: #{request} IN PROCESS #{Process.pid}"
 
         request_args = request.split(' ')
@@ -19,6 +19,7 @@ class Query
         end
 
         @file_type = @file.split(".").last
+        @url.prepend(folder)
     end
 
     def get_method

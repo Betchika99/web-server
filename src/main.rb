@@ -3,6 +3,11 @@ require_relative 'config.rb'
 require_relative 'query.rb'
 require_relative 'validate.rb'
 require_relative 'response.rb'
+require_relative 'file.rb'
+
+config, length = open_file(PATH_TO_CONFIG)
+available_workers_count = config.split("\n").select {|row| row.include? "cpu_limit"}[0].split(" ")[1].to_i
+static_folder = config.split("\n").select {|row| row.include? "document_root"}[0].split(" ")[1]
 
 server = TCPServer.new(PORT)
 
@@ -12,12 +17,17 @@ main = Process.pid
 
 workers = []
 
+begin
 loop do
     break if busy_workers_count == WORKERS_COUNT
     busy_workers_count += 1
     if Process.pid == main
-        # Process.fork
         pid = fork do
+            Signal.trap("TERM") do
+                puts "Terminating..."
+                shutdown()
+            end
+
             workers.push pid
             if Process.pid == main
                 print "Me (main)   : " + Process.pid.to_s
@@ -35,19 +45,19 @@ loop do
                 end
                 
                 q = Query.new
-                q.init(request)
+                q.init(request, static_folder)
                 if !check_query(q)
                     session.print create_response("NOT_ALLOWED", q)
                     session.close
                     next
                 end
-
+            
                 if !check_url(q) && q.file == "index.html"
                     session.print create_response("FORBIDDEN", q)
                     session.close
                     next
                 end
-
+            
                 if !check_url(q)
                     session.print create_response("NOT_FOUND", q)
                     session.close
@@ -61,29 +71,32 @@ loop do
     end
 end
 
-for pid in workers do
-    # Process.detach(pid)
-    Process.waitpid(pid)
+rescue SystemExit, Interrupt
+    raise
+  rescue Exception => e
+    for pid in workers do
+        Process.kill("TERM", pid)
+    end
 end
+
+# while true do
+# end
 
 # while (session = server.accept)
 #     request = session.gets
-#     puts "REQUEST: #{request}"
-#     puts "CHECK_REQUEST: #{check_request(request)}"
 #     if !check_request(request)
 #         session.close
 #         next
 #     end
     
 #     q = Query.new
-#     q.init(request)
+#     q.init(request, static_folder)
 #     if !check_query(q)
 #         session.print create_response("NOT_ALLOWED", q)
 #         session.close
 #         next
 #     end
 
-#     puts "FIIIIIIIILE: #{q.file}"
 #     if !check_url(q) && q.file == "index.html"
 #         session.print create_response("FORBIDDEN", q)
 #         session.close
