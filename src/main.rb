@@ -24,7 +24,6 @@ loop do
     if Process.pid == main
         pid = fork do
             Signal.trap("TERM") do
-                puts "Terminating..."
                 shutdown()
             end
 
@@ -77,10 +76,11 @@ rescue SystemExit, Interrupt
     for pid in workers do
         Process.kill("TERM", pid)
     end
+    shutdown()
 end
 
-# while true do
-# end
+while true do
+end
 
 # while (session = server.accept)
 #     request = session.gets
